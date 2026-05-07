@@ -6,7 +6,9 @@ pipeline {
         FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
         PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
     }
-
+    options {
+        durabilityHint('PERFORMANCE_OPTIMIZED')
+    }
     stages {
 
         stage('Flutter Version check') {
