@@ -9,7 +9,7 @@ pipeline {
 
     stages {
 
-        stage('Flutter Version') {
+        stage('Flutter Version check') {
             steps {
                 sh 'flutter --version'
             }
