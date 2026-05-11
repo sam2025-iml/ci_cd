@@ -30,7 +30,19 @@ ENV PATH="${PATH}:${FLUTTER_HOME}/bin"
 RUN git clone --depth 1 --branch 3.24.0 \
     https://github.com/flutter/flutter.git ${FLUTTER_HOME}
 
-RUN flutter precache --android
+# ✅ Fix ownership — make everything readable/writable by any user
+RUN chmod -R 777 /opt/flutter
+RUN chmod -R 777 /opt/android-sdk
+
+# ✅ Fix git safe directory for any user
+RUN git config --global --add safe.directory /opt/flutter
+
+# ✅ Pre-cache as root, then fix permissions again
+RUN flutter precache --android || true
 RUN flutter doctor --android-licenses || true
+
+# ✅ Final permission fix after precache downloads
+RUN chmod -R 777 /opt/flutter
+RUN chmod -R 777 /root/.pub-cache 2>/dev/null || true
 
 WORKDIR /app
