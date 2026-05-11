@@ -6,7 +6,9 @@ pipeline {
     //     FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
     //     PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
     // }
-    
+     environment {
+        PATH = "/usr/local/bin:${env.PATH}"
+    }
     options {
         durabilityHint('PERFORMANCE_OPTIMIZED')
     }
@@ -14,6 +16,7 @@ pipeline {
 
         stage('Docker check'){
             steps{
+                sh 'which docker'
                 sh 'docker --version'
             }
         }
