@@ -2,13 +2,18 @@ pipeline {
 
     agent any
 
-    environment {
-        FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
-        PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
+    // environment {
+    //     FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
+    //     PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
+    // }
+    tools {
+        flutter 'Flutter-3.41.6'
     }
+    
     options {
         durabilityHint('PERFORMANCE_OPTIMIZED')
     }
+
     stages {
 
         stage('Flutter Version check') {
