@@ -1,55 +1,89 @@
 pipeline {
 
-    agent {
-        docker {
-            image 'ghcr.io/cirruslabs/flutter:stable'
-            // tells Jenkins where to find docker on macOS
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
+    agent any
+
+    environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${env.PATH}"
+    }
+
+    options {
+        timestamps()
+        timeout(time: 60, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '5'))
     }
 
     stages {
 
-        stage('Flutter Version Check') {
+        stage('🔍 Checkout') {
             steps {
-                sh 'flutter --version'
+                echo 'Checking out source code...'
+                checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage('⚙️ Flutter Version') {
+            steps {
+                sh 'flutter --version'
+                sh 'flutter doctor'
+            }
+        }
+
+        stage('📦 Install Dependencies') {
             steps {
                 sh 'flutter pub get'
             }
         }
 
-        stage('Analyze') {
+        stage('🔎 Analyze Code') {
             steps {
                 sh 'flutter analyze'
             }
         }
 
-        stage('Build APK') {
+        stage('🧪 Run Tests') {
             steps {
-                sh 'flutter build apk --release'
+                sh 'flutter test'
             }
         }
 
-        stage('Archive APK') {
+        stage('🤖 Build Android APK') {
             steps {
-                archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk'
+                sh 'flutter build apk --release'
+            }
+            post {
+                success {
+                    archiveArtifacts(
+                        artifacts: 'build/app/outputs/flutter-apk/*.apk',
+                        fingerprint: true
+                    )
+                }
+            }
+        }
+
+        stage('🍎 Build iOS') {
+            steps {
+                sh 'flutter build ios --release --no-codesign'
+            }
+            post {
+                success {
+                    archiveArtifacts(
+                        artifacts: 'build/ios/iphoneos/*.app',
+                        fingerprint: true
+                    )
+                }
             }
         }
     }
 
     post {
-        success { echo '✅ Build Successful!' }
-        failure  { echo '❌ Build Failed!' }
+        success {
+            echo '✅ Build Successful! APK and iOS app are archived.'
+        }
+        failure {
+            echo '❌ Build Failed! Check the logs above.'
+        }
         always {
-            script {
-                if (currentBuild.rawBuild.getWorkspace() != null) {
-                    cleanWs()
-                }
-            }
+            cleanWs(notFailBuild: true)
         }
     }
 }
