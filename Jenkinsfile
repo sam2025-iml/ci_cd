@@ -11,7 +11,9 @@ pipeline {
     //     FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
     //     PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
     // }
-   
+     environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    }
     // options {
     //     durabilityHint('PERFORMANCE_OPTIMIZED')
     //     timeout(time: 30, unit: 'MINUTES')
