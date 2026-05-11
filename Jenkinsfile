@@ -12,11 +12,11 @@ pipeline {
     //     PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
     // }
    
-    options {
-        durabilityHint('PERFORMANCE_OPTIMIZED')
-        timeout(time: 30, unit: 'MINUTES')
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-    }
+    // options {
+    //     durabilityHint('PERFORMANCE_OPTIMIZED')
+    //     timeout(time: 30, unit: 'MINUTES')
+    //     buildDiscarder(logRotator(numToKeepStr: '10'))
+    // }
     stages {
 
         stage('Docker Test') {
