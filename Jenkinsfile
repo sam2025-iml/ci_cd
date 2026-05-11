@@ -1,9 +1,12 @@
 pipeline {
 
-    agent any
-
-    environment {
-        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${env.PATH}"
+    agent {
+        dockerfile {
+            filename 'Dockerfile'
+            additionalBuildArgs '--tag flutter-jenkins-builder:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            reuseNode true
+        }
     }
 
     options {
@@ -14,17 +17,10 @@ pipeline {
 
     stages {
 
-        stage('🔍 Checkout') {
-            steps {
-                echo 'Checking out source code...'
-                checkout scm
-            }
-        }
-
-        stage('⚙️ Flutter Version') {
+        stage('🔍 Verify Environment') {
             steps {
                 sh 'flutter --version'
-                sh 'flutter doctor'
+                sh 'java -version'
             }
         }
 
@@ -34,13 +30,13 @@ pipeline {
             }
         }
 
-        stage('🔎 Analyze Code') {
+        stage('🔎 Analyze') {
             steps {
                 sh 'flutter analyze'
             }
         }
 
-        stage('🧪 Run Tests') {
+        stage('🧪 Test') {
             steps {
                 sh 'flutter test'
             }
@@ -50,37 +46,19 @@ pipeline {
             steps {
                 sh 'flutter build apk --release'
             }
-            post {
-                success {
-                    archiveArtifacts(
-                        artifacts: 'build/app/outputs/flutter-apk/*.apk',
-                        fingerprint: true
-                    )
-                }
-            }
-        }
-
-        stage('🍎 Build iOS') {
-            steps {
-                sh 'flutter build ios --release --no-codesign'
-            }
-            post {
-                success {
-                    archiveArtifacts(
-                        artifacts: 'build/ios/iphoneos/*.app',
-                        fingerprint: true
-                    )
-                }
-            }
         }
     }
 
     post {
         success {
-            echo '✅ Build Successful! APK and iOS app are archived.'
+            archiveArtifacts(
+                artifacts: 'build/app/outputs/flutter-apk/*.apk',
+                fingerprint: true
+            )
+            echo '✅ Build Successful! APK archived.'
         }
         failure {
-            echo '❌ Build Failed! Check the logs above.'
+            echo '❌ Build Failed! Check logs above.'
         }
         always {
             cleanWs(notFailBuild: true)
