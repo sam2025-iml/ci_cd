@@ -1,35 +1,16 @@
 pipeline {
 
     agent {
-        docker{
+        docker {
             image 'ghcr.io/cirruslabs/flutter:stable'
+            // tells Jenkins where to find docker on macOS
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
-    // agent any
 
-    // environment {
-    //     FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
-    //     PATH = "${FLUTTER_HOME}/bin:${env.PATH}"
-    // }
-     environment {
-        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-    }
-    // options {
-    //     durabilityHint('PERFORMANCE_OPTIMIZED')
-    //     timeout(time: 30, unit: 'MINUTES')
-    //     buildDiscarder(logRotator(numToKeepStr: '10'))
-    // }
     stages {
 
-        stage('Docker Test') {
-            steps {
-                sh 'echo $PATH'
-                sh 'which docker'
-                sh 'docker --version'
-            }
-        }
-
-        stage('Flutter Version check') {
+        stage('Flutter Version Check') {
             steps {
                 sh 'flutter --version'
             }
@@ -52,26 +33,23 @@ pipeline {
                 sh 'flutter build apk --release'
             }
         }
-        
+
         stage('Archive APK') {
             steps {
-                 archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk'
+                archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk'
             }
-}
+        }
     }
 
     post {
-
-        success {
-            echo '✅ Build Successful!'
-        }
-
-        failure {
-            echo '❌ Build Failed!'
-        }
-
+        success { echo '✅ Build Successful!' }
+        failure  { echo '❌ Build Failed!' }
         always {
-            cleanWs()
+            script {
+                if (currentBuild.rawBuild.getWorkspace() != null) {
+                    cleanWs()
+                }
+            }
         }
     }
 }
