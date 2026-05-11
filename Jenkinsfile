@@ -1,10 +1,6 @@
 pipeline {
 
-    agent {
-        docker {
-            image 'gcr.io/cirruslabs/flutter:latest'
-        }
-    }
+    agent any
 
     // environment {
     //     FLUTTER_HOME = '/Users/bhaveshingeniousmindslab/fvm/default'
@@ -16,35 +12,41 @@ pipeline {
     }
     stages {
 
-        stage('Flutter Version check') {
-            steps {
-                sh 'flutter --version'
+        stage('Docker check'){
+            steps{
+                sh 'docker --version'
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'flutter pub get'
-            }
-        }
+//         stage('Flutter Version check') {
+//             steps {
+//                 sh 'flutter --version'
+//             }
+//         }
 
-        stage('Analyze') {
-            steps {
-                sh 'flutter analyze'
-            }
-        }
+//         stage('Install Dependencies') {
+//             steps {
+//                 sh 'flutter pub get'
+//             }
+//         }
 
-        stage('Build APK') {
-            steps {
-                sh 'flutter build apk --release'
-            }
-        }
+//         stage('Analyze') {
+//             steps {
+//                 sh 'flutter analyze'
+//             }
+//         }
+
+//         stage('Build APK') {
+//             steps {
+//                 sh 'flutter build apk --release'
+//             }
+//         }
         
-        stage('Archive APK') {
-            steps {
-                 archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk'
-            }
-}
+//         stage('Archive APK') {
+//             steps {
+//                  archiveArtifacts artifacts: 'build/app/outputs/flutter-apk/*.apk'
+//             }
+// }
     }
 
     post {
